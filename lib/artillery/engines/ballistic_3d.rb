@@ -1,45 +1,68 @@
 # frozen_string_literal: true
 
-# app/lib/artillery/engines/ballistic_3d.rb
 module Artillery
   module Engines
     class Ballistic3D
-      GRAVITY = 9.81
+      TICK = 0.05
 
-      def simulate(ballistic_input)
-        attrs = ballistic_input.to_h
+      def initialize(before_tick_hooks: [], after_tick_hooks: [], affectors: [])
+        @before_hooks = before_tick_hooks
+        @after_hooks = after_tick_hooks
+        @affectors = affectors
+      end
 
-        angle_rad    = deg_to_rad(attrs[:angle_deg])
-        deflection   = deg_to_rad(attrs[:deflection_deg])
-        velocity     = attrs[:initial_velocity]
-        shell_weight = attrs[:shell_weight]
-        aoe_radius   = attrs[:area_of_effect]
+      def simulate(input)
+        state = initial_state(input)
+        history = []
 
-        vx = velocity * Math.cos(angle_rad) * Math.cos(deflection)
-        vy = velocity * Math.cos(angle_rad) * Math.sin(deflection)
-        vz = velocity * Math.sin(angle_rad)
+        while state.position.z > 0
+          @before_hooks.each { |hook| hook.call!(state, TICK) }
 
-        time = (2 * vz) / GRAVITY
+          @affectors.each { |affector| affector.call!(state, TICK) }
 
-        x_impact = vx * time
-        y_impact = vy * time
+          integrate!(state)
+
+          @after_hooks.each { |hook| hook.call!(state, TICK) }
+
+          history << state.copy
+        end
 
         {
-          impact_xyz: [x_impact.round(2), y_impact.round(2), 0.0],
-          flight_time: time.round(2),
-          area_of_effect: aoe_radius,
-          debug: {
-            components: { vx: vx, vy: vy, vz: vz },
-            shell_weight: shell_weight,
-            velocity: velocity
-          }
+          impact_xyz: state.position.to_a.map { |v| v.round(2) },
+          flight_time: state.time.round(2),
+          trace: history.map(&:position).map(&:to_a)
         }
       end
 
       private
 
-      def deg_to_rad(deg)
-        deg * Math::PI / 180.0
+      def integrate!(state)
+        state.velocity = state.velocity + (state.acceleration * TICK)
+        state.position = state.position + (state.velocity * TICK)
+        state.time += TICK
+        state.acceleration = Physics::Vector.new(0, 0, 0) # reset forces
+      end
+
+      def initial_state(input)
+        angle = deg_to_rad(input.angle_deg)
+        defl = deg_to_rad(input.deflection_deg)
+
+        vx = input.initial_velocity * Math.cos(angle) * Math.cos(defl)
+        vy = input.initial_velocity * Math.cos(angle) * Math.sin(defl)
+        vz = input.initial_velocity * Math.sin(angle)
+
+        Physics::ShotState.new(
+          time: 0.0,
+          mass: input.shell_weight,
+          surface_area: input.surface_area || 0,
+          position: Physics::Vector.new(0, 0, 0),
+          velocity: Physics::Vector.new(vx, vy, vz),
+          acceleration: Physics::Vector.new(0, 0, 0)
+        )
+      end
+
+      def deg_to_rad(d)
+        d * Math::PI / 180
       end
     end
   end
