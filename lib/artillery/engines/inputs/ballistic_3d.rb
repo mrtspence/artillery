@@ -16,9 +16,9 @@ module Artillery
         end
 
         def self.from_resolver(resolver)
-          raise ArgumentError, "Missing angle_deg" unless resolver[:angle_deg]
-          raise ArgumentError, "Missing initial_velocity" unless resolver[:initial_velocity]
-          raise ArgumentError, "Missing shell_weight" unless resolver[:shell_weight]
+          raise ArgumentError, 'Missing angle_deg' unless resolver[:angle_deg]
+          raise ArgumentError, 'Missing initial_velocity' unless resolver[:initial_velocity]
+          raise ArgumentError, 'Missing shell_weight' unless resolver[:shell_weight]
 
           new(
             angle_deg: resolver[:angle_deg],

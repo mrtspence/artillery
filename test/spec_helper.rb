@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
-require 'factory_bot'
-require 'zeitwerk'
+ENV["RAILS_ENV"] ||= "test"
+require_relative "../config/environment"
+require "rails/test_help"
+require 'rspec/rails'
+require 'factory_bot_rails'
 
-FactoryBot.definition_file_paths = [File.expand_path("spec/factories", __dir__)]
-FactoryBot.find_definitions
-
-loader = Zeitwerk::Loader.new
-loader.push_dir(File.expand_path("../lib", __dir__))
-loader.setup
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
+end
 
 RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
@@ -25,7 +28,7 @@ RSpec.configure do |config|
 
   config.filter_run_when_matching :focus
 
-  config.example_status_persistence_file_path = "spec/examples.txt"
+  config.example_status_persistence_file_path = "test/examples.txt"
 
   config.disable_monkey_patching!
 
@@ -40,4 +43,10 @@ RSpec.configure do |config|
   config.order = :random
 
   Kernel.srand config.seed
+
+  # Use ActiveRecord transactions for test isolation
+  config.use_transactional_fixtures = true
+
+  # Infer spec type from file location
+  config.infer_spec_type_from_file_location!
 end

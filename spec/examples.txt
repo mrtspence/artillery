@@ -1,6 +1,0 @@
-example_id                                                             | status | run_time        |
----------------------------------------------------------------------- | ------ | --------------- |
-./spec/lib/artillery/engines/affectors/air_resistance_spec.rb[1:1:1:1] | passed | 0.03636 seconds |
-./spec/lib/artillery/engines/affectors/air_resistance_spec.rb[1:1:2:1] | passed | 0.01585 seconds |
-./spec/lib/artillery/engines/affectors/gravity_spec.rb[1:1:1:1]        | passed | 0.03856 seconds |
-./spec/lib/artillery/engines/affectors/gravity_spec.rb[1:1:2:1]        | passed | 0.0001 seconds  |

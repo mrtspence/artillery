@@ -5,6 +5,8 @@ module Artillery
     class Ballistic3D
       TICK = 0.05
 
+      # TODO: get some attr accessors here and drop all the instance variables
+
       def initialize(before_tick_hooks: [], after_tick_hooks: [], affectors: [])
         @before_hooks = before_tick_hooks
         @after_hooks = after_tick_hooks
@@ -17,11 +19,8 @@ module Artillery
 
         while state.position.z > 0
           @before_hooks.each { |hook| hook.call!(state, TICK) }
-
           @affectors.each { |affector| affector.call!(state, TICK) }
-
           integrate!(state)
-
           @after_hooks.each { |hook| hook.call!(state, TICK) }
 
           history << state.copy
@@ -40,15 +39,14 @@ module Artillery
         state.velocity = state.velocity + (state.acceleration * TICK)
         state.position = state.position + (state.velocity * TICK)
         state.time += TICK
-        state.acceleration = Physics::Vector.new(0, 0, 0) # reset forces
       end
 
       def initial_state(input)
         angle = deg_to_rad(input.angle_deg)
-        defl = deg_to_rad(input.deflection_deg)
+        deflection = deg_to_rad(input.deflection_deg)
 
-        vx = input.initial_velocity * Math.cos(angle) * Math.cos(defl)
-        vy = input.initial_velocity * Math.cos(angle) * Math.sin(defl)
+        vx = input.initial_velocity * Math.cos(angle) * Math.cos(deflection)
+        vy = input.initial_velocity * Math.cos(angle) * Math.sin(deflection)
         vz = input.initial_velocity * Math.sin(angle)
 
         Physics::ShotState.new(
