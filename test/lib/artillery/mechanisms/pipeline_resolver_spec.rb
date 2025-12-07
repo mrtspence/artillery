@@ -17,30 +17,30 @@ RSpec.describe Artillery::Mechanisms::PipelineResolver do
       it "resolves cartridge outputs" do
         context = resolver.resolve
 
-        expect(context).to include(:base_initial_velocity)
-        expect(context).to include(:shell_weight)
-        expect(context).to include(:surface_area)
-        expect(context).to include(:caliber_mm)
+        expect(context.has?(:base_initial_velocity)).to be true
+        expect(context.has?(:shell_weight)).to be true
+        expect(context.has?(:surface_area)).to be true
+        expect(context.has?(:caliber_mm)).to be true
       end
 
       it "preserves player input" do
         context = resolver.resolve
 
-        expect(context[:powder_charges]).to eq(3)
+        expect(context.get(:powder_charges)).to eq(3)
       end
 
       it "applies velocity variance" do
         context = resolver.resolve
 
         # Base: 400 + (3 * 50) = 550 m/s, with ±5% variance
-        expect(context[:base_initial_velocity]).to be_between(522.5, 577.5)
+        expect(context.get(:base_initial_velocity)).to be_between(522.5, 577.5)
       end
 
       it "applies weight variance" do
         context = resolver.resolve
 
         # Base: 8.4 kg with ±2% variance
-        expect(context[:shell_weight]).to be_between(8.232, 8.568)
+        expect(context.get(:shell_weight)).to be_between(8.232, 8.568)
       end
     end
 

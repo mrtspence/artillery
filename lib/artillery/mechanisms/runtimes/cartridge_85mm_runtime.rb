@@ -7,6 +7,8 @@ module Artillery
         attr_reader :velocity_variance, :weight_variance
 
         def initialize_runtime
+          validate_required_modifiers!(['shell_weight_kg', 'charge_velocity_per_unit', 'base_velocity', 'caliber_mm', 'construction'])
+
           rng = Random.new(random_seed + mechanism.id)
 
           # Randomize manufacturing variance (±5% velocity, ±2% weight)
@@ -31,12 +33,13 @@ module Artillery
           caliber_m = (mechanism.modifiers['caliber_mm'] || 84.5) / 1000.0
           area = Math::PI * (caliber_m / 2) ** 2
 
-          {
-            base_initial_velocity: velocity,
-            shell_weight: weight,
-            surface_area: area,
-            caliber_mm: mechanism.modifiers['caliber_mm'] || 84.5
-          }
+          # Return array of transforms
+          [
+            transform(key: :base_initial_velocity, value: velocity, operation: :set),
+            transform(key: :shell_weight, value: weight, operation: :set),
+            transform(key: :surface_area, value: area, operation: :set),
+            transform(key: :caliber_mm, value: mechanism.modifiers['caliber_mm'] || 84.5, operation: :set)
+          ]
         end
 
         def metadata

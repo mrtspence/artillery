@@ -2,6 +2,9 @@ ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
 
+# Eager load platforms to ensure they register with the registry
+Dir[Rails.root.join("lib/artillery/platforms/**/*.rb")].each { |f| require f }
+
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers

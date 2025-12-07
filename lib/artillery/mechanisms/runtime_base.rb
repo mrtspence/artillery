@@ -18,22 +18,42 @@ module Artillery
         # Subclasses implement this
       end
 
-      # Main pipeline method: receives context hash, returns contributions
-      # @param context [Hash] Accumulated values from previous pipeline stages
-      # @return [Hash] New/modified values to merge into context
+      # Main pipeline method: receives context, returns array of transforms
+      # @param context [PipelineContext] Accumulated state from previous pipeline stages
+      # @return [Array<PipelineTransform>] Transformations to apply to context
       def resolve(context)
         raise NotImplementedError, "#{self.class.name} must implement #resolve"
       end
 
       # Optional: validate that required inputs are present
-      # @param context [Hash] Current pipeline context
+      # @param context [PipelineContext] Current pipeline context
       # @raise [ArgumentError] if required inputs missing
       def validate_inputs!(context)
         mechanism.input_keys.each do |key|
-          unless context.key?(key)
+          unless context.has?(key)
             raise ArgumentError, "Missing required input: #{key} for #{mechanism.class.name}"
           end
         end
+      end
+
+      # Validate that required modifiers are present
+      # @param required_keys [Array<String>] List of required modifier keys
+      # @raise [ArgumentError] if any required modifiers are missing
+      def validate_required_modifiers!(required_keys)
+        missing_keys = required_keys.reject { |key| mechanism.modifiers.key?(key) }
+
+        if missing_keys.any?
+          raise ArgumentError, "#{mechanism.class.name} is missing required modifiers: #{missing_keys.join(', ')}"
+        end
+      end
+
+      # Helper to create a transform
+      # @param key [Symbol] The attribute key
+      # @param value [Numeric] The value to apply
+      # @param operation [Symbol] The operation (:set, :add, :multiply, etc.)
+      # @return [PipelineTransform]
+      def transform(key:, value:, operation: :set)
+        PipelineTransform.new(key: key, value: value, operation: operation)
       end
 
       # Optional: provide metadata for UI rendering

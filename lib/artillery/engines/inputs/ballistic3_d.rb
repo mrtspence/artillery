@@ -5,14 +5,16 @@ module Artillery
     module Inputs
       class Ballistic3D
         attr_reader :angle_deg, :initial_velocity, :shell_weight,
-                    :deflection_deg, :area_of_effect
+                    :deflection_deg, :area_of_effect, :surface_area, :initial_height
 
-        def initialize(angle_deg:, initial_velocity:, shell_weight:, deflection_deg: 0, area_of_effect: 0)
+        def initialize(angle_deg:, initial_velocity:, shell_weight:, deflection_deg: 0, area_of_effect: 0, surface_area: 0, initial_height: 1.0)
           @angle_deg = angle_deg
           @initial_velocity = initial_velocity
           @shell_weight = shell_weight
           @deflection_deg = deflection_deg
           @area_of_effect = area_of_effect
+          @surface_area = surface_area
+          @initial_height = initial_height
         end
 
         def self.from_resolver(resolver)
@@ -25,7 +27,9 @@ module Artillery
             initial_velocity: resolver[:initial_velocity],
             shell_weight: resolver[:shell_weight],
             deflection_deg: resolver[:deflection_deg] || 0,
-            area_of_effect: resolver[:area_of_effect] || 0
+            area_of_effect: resolver[:area_of_effect] || 0,
+            surface_area: resolver[:surface_area] || 0,
+            initial_height: resolver[:initial_height] || 1.0
           )
         end
 
@@ -35,7 +39,9 @@ module Artillery
             initial_velocity:,
             shell_weight:,
             deflection_deg:,
-            area_of_effect:
+            area_of_effect:,
+            surface_area:,
+            initial_height:
           }
         end
       end

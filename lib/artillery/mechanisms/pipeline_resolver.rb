@@ -11,34 +11,29 @@ module Artillery
         @orderer = MechanismOrderer.new(runtimes)
       end
 
-      # Execute the pipeline and return full context
-      # @return [Hash] Complete resolved context
+      # Execute the pipeline and return resolved context
+      # @return [PipelineContext] Complete resolved context
       def resolve
-        context = player_input.dup
+        context = PipelineContext.new(player_input)
 
         # Delegate ordering to MechanismOrderer
         orderer.ordered.each do |runtime|
-          contributions = runtime.resolve(context)
-          context.merge!(contributions)
+          transforms = runtime.resolve(context)
+
+          # Apply each transform to the context
+          Array(transforms).each do |transform|
+            context.set_or_update(transform)
+          end
         end
 
         context
       end
 
       # Extract only ballistic engine inputs
-      # @return [Hash] Ballistic engine parameters
+      # @return [Artillery::Engines::Inputs::Ballistic3D] Ballistic engine parameters
       def ballistic_attributes
         context = resolve
-
-        # Extract keys needed by Ballistic3D engine
-        {
-          angle_deg: context[:angle_deg] || 45.0,
-          initial_velocity: context[:initial_velocity] || 500.0,
-          shell_weight: context[:shell_weight] || 25.0,
-          deflection_deg: context[:deflection_deg] || 0.0,
-          area_of_effect: context[:area_of_effect] || 0.0,
-          surface_area: context[:surface_area] || 0.05
-        }
+        context.to_ballistic_inputs
       end
 
       # Calculate total turn order delay
