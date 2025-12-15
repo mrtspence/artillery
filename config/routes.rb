@@ -9,6 +9,15 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  # Match system routes
+  resources :matches, only: [:index, :show, :new, :create] do
+    resource :start, controller: 'match_starts', only: [:create]
+    resource :abandon, controller: 'match_abandons', only: [:create]
+    resources :turns, only: [:create]
+  end
+
+  resources :match_joins, only: [:create]
+
   # Defines the root path route ("/")
-  # root "posts#index"
+  root "matches#index"
 end

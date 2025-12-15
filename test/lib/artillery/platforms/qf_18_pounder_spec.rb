@@ -54,7 +54,7 @@ RSpec.describe Artillery::Platforms::Qf18Pounder do
       requirements = described_class.slot_requirements
       barrel_req = requirements.find { |r| r.slot_key == :barrel }
 
-      expect(barrel_req.allowed_types).to include("PlayerMechanisms::Barrel85mm")
+      expect(barrel_req.allowed_types).to include("PlayerMechanisms::Edwardian::Barrel85mm")
     end
 
     it "has descriptions for each slot" do
@@ -172,9 +172,8 @@ RSpec.describe Artillery::Platforms::Qf18Pounder do
     it "returns characteristics hash" do
       chars = described_class.ui_characteristics
 
-      expect(chars).to include(:era, :country, :role, :crew_size)
-      expect(chars[:era]).to eq("Edwardian")
-      expect(chars[:country]).to eq("United Kingdom")
+      expect(chars).to include(:faction, :role, :crew_size)
+      expect(chars[:faction]).to eq("Edwardian")
     end
   end
 end

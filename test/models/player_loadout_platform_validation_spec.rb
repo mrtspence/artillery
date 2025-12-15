@@ -133,13 +133,13 @@ RSpec.describe PlayerLoadout, "platform validation", type: :model do
     it "returns allowed types for barrel slot" do
       allowed = loadout.allowed_mechanism_types_for_slot(:barrel)
 
-      expect(allowed).to include("PlayerMechanisms::Barrel85mm")
+      expect(allowed).to include("PlayerMechanisms::Edwardian::Barrel85mm")
     end
 
     it "returns allowed types for elevation slot" do
       allowed = loadout.allowed_mechanism_types_for_slot(:elevation)
 
-      expect(allowed).to include("PlayerMechanisms::ElevationDial")
+      expect(allowed).to include("PlayerMechanisms::Edwardian::ElevationDial")
     end
 
     it "returns empty array for unknown slot" do

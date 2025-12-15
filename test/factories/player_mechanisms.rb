@@ -12,7 +12,7 @@ FactoryBot.define do
     priority { 50 }
 
     # Cartridge85mm factory
-    factory :cartridge_85mm, class: 'PlayerMechanisms::Cartridge85mm' do
+    factory :cartridge_85mm, class: 'PlayerMechanisms::Edwardian::Cartridge85mm' do
       slot_key { :cartridge }
       priority { 10 }
       base_cost { 150.0 }
@@ -70,7 +70,7 @@ FactoryBot.define do
     end
 
     # Barrel85mm factory
-    factory :barrel_85mm, class: 'PlayerMechanisms::Barrel85mm' do
+    factory :barrel_85mm, class: 'PlayerMechanisms::Edwardian::Barrel85mm' do
       slot_key { :barrel }
       priority { 15 }
       base_cost { 500.0 }
@@ -109,7 +109,7 @@ FactoryBot.define do
     end
 
     # BreechQf factory
-    factory :breech_qf, class: 'PlayerMechanisms::BreechQf' do
+    factory :breech_qf, class: 'PlayerMechanisms::Edwardian::BreechQf' do
       slot_key { :breech }
       priority { 90 }
       base_cost { 400.0 }
@@ -132,7 +132,7 @@ FactoryBot.define do
     end
 
     # DeflectionScrew factory
-    factory :deflection_screw, class: 'PlayerMechanisms::DeflectionScrew' do
+    factory :deflection_screw, class: 'PlayerMechanisms::Edwardian::DeflectionScrew' do
       slot_key { :deflection }
       priority { 5 }
       base_cost { 200.0 }
@@ -157,7 +157,7 @@ FactoryBot.define do
     end
 
     # ElevationDial factory
-    factory :elevation_dial, class: 'PlayerMechanisms::ElevationDial' do
+    factory :elevation_dial, class: 'PlayerMechanisms::Edwardian::ElevationDial' do
       slot_key { :elevation }
       priority { 5 }
       base_cost { 300.0 }
@@ -196,7 +196,7 @@ FactoryBot.define do
     end
 
     # RecoilSystem factory
-    factory :recoil_system, class: 'PlayerMechanisms::RecoilSystem' do
+    factory :recoil_system, class: 'PlayerMechanisms::Edwardian::RecoilSystem' do
       slot_key { :recoil_system }
       priority { 85 }
       base_cost { 600.0 }
@@ -222,7 +222,7 @@ FactoryBot.define do
     end
 
     # OpticalSight factory
-    factory :optical_sight, class: 'PlayerMechanisms::OpticalSight' do
+    factory :optical_sight, class: 'PlayerMechanisms::Edwardian::OpticalSight' do
       slot_key { :sight }
       priority { 95 }
       base_cost { 250.0 }

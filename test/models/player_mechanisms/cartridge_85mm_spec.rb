@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-RSpec.describe PlayerMechanisms::Cartridge85mm, type: :model do
+RSpec.describe PlayerMechanisms::Edwardian::Cartridge85mm, type: :model do
   describe "#runtime_class" do
     let(:cartridge) { build(:cartridge_85mm) }
 

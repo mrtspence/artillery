@@ -10,9 +10,69 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_21_171657) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_12_215308) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "map_targets", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.boolean "is_hit", default: false, null: false
+    t.bigint "map_id", null: false
+    t.string "name", null: false
+    t.integer "points_value", default: 50, null: false
+    t.jsonb "position", default: {}, null: false
+    t.string "target_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["map_id"], name: "index_map_targets_on_map_id"
+  end
+
+  create_table "maps", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "height", default: 1000, null: false
+    t.bigint "match_id", null: false
+    t.string "name", null: false
+    t.jsonb "terrain_data", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.integer "width", default: 1000, null: false
+    t.index ["match_id"], name: "index_maps_on_match_id", unique: true
+  end
+
+  create_table "match_players", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.boolean "is_host", default: false, null: false
+    t.bigint "match_id", null: false
+    t.bigint "player_id", null: false
+    t.bigint "player_loadout_id", null: false
+    t.jsonb "position_on_map", default: {}, null: false
+    t.integer "score", default: 0, null: false
+    t.integer "turn_order", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id", "player_id"], name: "index_match_players_on_match_id_and_player_id", unique: true
+    t.index ["match_id", "turn_order"], name: "index_match_players_on_match_id_and_turn_order"
+    t.index ["match_id"], name: "index_match_players_on_match_id"
+    t.index ["player_id"], name: "index_match_players_on_player_id"
+    t.index ["player_loadout_id"], name: "index_match_players_on_player_loadout_id"
+  end
+
+  create_table "match_states", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "current_turn_number", default: 0, null: false
+    t.bigint "match_id", null: false
+    t.integer "turn_limit", default: 10, null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id"], name: "index_match_states_on_match_id", unique: true
+  end
+
+  create_table "matches", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "current_player_id"
+    t.string "lobby_code", limit: 6, null: false
+    t.string "status", default: "setup", null: false
+    t.datetime "updated_at", null: false
+    t.index ["current_player_id"], name: "index_matches_on_current_player_id"
+    t.index ["lobby_code"], name: "index_matches_on_lobby_code", unique: true
+    t.index ["status"], name: "index_matches_on_status"
+  end
 
   create_table "player_loadout_slots", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -55,15 +115,37 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_21_171657) do
 
   create_table "players", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.string "email", null: false
     t.datetime "updated_at", null: false
     t.string "username", null: false
-    t.index ["email"], name: "index_players_on_email", unique: true
     t.index ["username"], name: "index_players_on_username", unique: true
   end
 
+  create_table "turns", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.boolean "hit_target", default: false, null: false
+    t.jsonb "input_data", default: {}, null: false
+    t.bigint "match_id", null: false
+    t.bigint "match_player_id", null: false
+    t.integer "points_earned", default: 0, null: false
+    t.jsonb "result_data", default: {}, null: false
+    t.integer "turn_number", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id", "turn_number"], name: "index_turns_on_match_id_and_turn_number"
+    t.index ["match_id"], name: "index_turns_on_match_id"
+    t.index ["match_player_id"], name: "index_turns_on_match_player_id"
+  end
+
+  add_foreign_key "map_targets", "maps"
+  add_foreign_key "maps", "matches"
+  add_foreign_key "match_players", "matches"
+  add_foreign_key "match_players", "player_loadouts"
+  add_foreign_key "match_players", "players"
+  add_foreign_key "match_states", "matches"
+  add_foreign_key "matches", "players", column: "current_player_id"
   add_foreign_key "player_loadout_slots", "player_loadouts"
   add_foreign_key "player_loadout_slots", "player_mechanisms"
   add_foreign_key "player_loadouts", "players"
   add_foreign_key "player_mechanisms", "players"
+  add_foreign_key "turns", "match_players"
+  add_foreign_key "turns", "matches"
 end

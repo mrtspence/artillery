@@ -1,0 +1,146 @@
+<div class="w-full">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="font-bold text-4xl mb-2">Match <%= @match.lobby_code %></h1>
+      <p class="text-gray-600">
+        Status: <span class="font-medium <%= @match.status == 'setup' ? 'text-yellow-600' : (@match.status == 'in_progress' ? 'text-green-600' : 'text-gray-600') %>">
+          <%= @match.status.titleize %>
+        </span>
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to "Back to Matches", matches_path, class: "rounded-lg py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium", data: { turbo_frame: "_top" } %>
+      <% if @match.status == 'setup' || @match.status == 'in_progress' %>
+        <%= button_to "Abandon Match", match_abandon_path(@match), method: :post,
+            class: "rounded-lg py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-medium",
+            form: { data: { turbo_confirm: "Are you sure you want to abandon this match?" } } %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Players Section -->
+    <div class="lg:col-span-2">
+      <div class="border rounded-lg p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-2xl">Players (<%= @match_players.count %> / <%= Match::MAX_PLAYERS %>)</h2>
+          <% if @match.status == 'setup' && @match_players.count >= Match::MIN_PLAYERS %>
+            <%= button_to "Start Match", match_start_path(@match), method: :post,
+                class: "rounded-lg py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-medium" %>
+          <% end %>
+        </div>
+
+        <div class="space-y-3">
+          <% @match_players.each do |match_player| %>
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg <%= @match.current_player == match_player.player ? 'ring-2 ring-blue-500' : '' %>">
+              <div class="flex items-center gap-3">
+                <span class="font-bold text-lg"><%= match_player.turn_order + 1 %></span>
+                <div>
+                  <p class="font-medium"><%= match_player.player.username %></p>
+                  <p class="text-sm text-gray-600">
+                    <%= match_player.player_loadout.platform_type %>
+                    <% if match_player.is_host %>
+                      <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Host</span>
+                    <% end %>
+                  </p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-bold text-lg"><%= match_player.score %> pts</p>
+                <% if @match.current_player == match_player.player %>
+                  <p class="text-sm text-blue-600 font-medium">Current Turn</p>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <% if @match.status == 'setup' %>
+          <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p class="text-sm text-yellow-800">
+              <% if @match_players.count < Match::MIN_PLAYERS %>
+                Waiting for at least <%= Match::MIN_PLAYERS %> players to join. Share lobby code: <strong><%= @match.lobby_code %></strong>
+              <% else %>
+                Ready to start! Click "Start Match" when all players are ready.
+              <% end %>
+            </p>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Recent Turns -->
+      <% if @match.status == 'in_progress' && @turns.any? %>
+        <div class="border rounded-lg p-6">
+          <h2 class="font-bold text-2xl mb-4">Recent Turns</h2>
+          <div class="space-y-2">
+            <% @turns.each do |turn| %>
+              <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                <div>
+                  <span class="font-medium"><%= turn.player.username %></span>
+                  <span class="text-sm text-gray-600">- Turn <%= turn.turn_number %></span>
+                </div>
+                <span class="font-bold <%= turn.points_earned > 0 ? 'text-green-600' : 'text-gray-600' %>">
+                  <%= turn.points_earned > 0 ? "+#{turn.points_earned}" : turn.points_earned %> pts
+                </span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Match Info Sidebar -->
+    <div class="space-y-6">
+      <!-- Game State -->
+      <% if @match.match_state %>
+        <div class="border rounded-lg p-6">
+          <h3 class="font-bold text-xl mb-4">Game State</h3>
+          <div class="space-y-3">
+            <div>
+              <p class="text-sm text-gray-600">Current Turn</p>
+              <p class="font-bold text-2xl"><%= @match.match_state.current_turn_number %> / <%= @match.match_state.turn_limit %></p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Turns Remaining</p>
+              <p class="font-bold text-xl"><%= @match.match_state.turns_remaining %></p>
+            </div>
+            <% if @match.status == 'in_progress' && @current_match_player %>
+              <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                <p class="text-sm text-blue-800">
+                  <% if @match.current_player == @current_match_player.player %>
+                    <strong>Your turn!</strong> Take your shot.
+                  <% else %>
+                    Waiting for <%= @match.current_player.username %> to take their turn.
+                  <% end %>
+                </p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Map Info -->
+      <% if @map %>
+        <div class="border rounded-lg p-6">
+          <h3 class="font-bold text-xl mb-4">Map</h3>
+          <div class="space-y-2">
+            <div>
+              <p class="text-sm text-gray-600">Name</p>
+              <p class="font-medium"><%= @map.name %></p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Dimensions</p>
+              <p class="font-medium"><%= @map.width %> × <%= @map.height %></p>
+            </div>
+            <% if @map.map_targets.any? %>
+              <div>
+                <p class="text-sm text-gray-600">Targets</p>
+                <p class="font-medium"><%= @map.map_targets.count %></p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

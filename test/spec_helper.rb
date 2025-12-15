@@ -2,9 +2,17 @@
 
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
-require "rails/test_help"
 require 'rspec/rails'
 require 'factory_bot_rails'
+
+# Eager load platforms to ensure they register with the registry
+Dir[Rails.root.join("lib/artillery/platforms/**/*.rb")].each { |f| require f }
+
+begin
+  ActiveRecord::Migration.maintain_test_schema!
+rescue ActiveRecord::PendingMigrationError => e
+  abort e.to_s.strip
+end
 
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|

@@ -1,0 +1,50 @@
+<div class="w-full">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="font-bold text-4xl">Active Matches</h1>
+    <%= link_to "Create Match", new_match_path, class: "rounded-lg py-3 px-5 bg-blue-600 text-white hover:bg-blue-700 font-medium", data: { turbo_frame: "_top" } %>
+  </div>
+
+  <% if @active_matches.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <% @active_matches.each do |match| %>
+        <div class="border rounded-lg p-6 hover:shadow-lg transition-shadow">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h2 class="font-bold text-xl mb-1">
+                <%= link_to match.lobby_code, match_path(match), class: "text-blue-600 hover:text-blue-800", data: { turbo_frame: "_top" } %>
+              </h2>
+              <p class="text-sm text-gray-600">
+                <%= match.status.titleize %>
+              </p>
+            </div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium <%= match.status == 'setup' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %>">
+              <%= match.status == 'setup' ? 'Waiting' : 'In Progress' %>
+            </span>
+          </div>
+
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Players:</span>
+              <span class="font-medium"><%= match.match_players.count %> / <%= Match::MAX_PLAYERS %></span>
+            </div>
+            <% if match.match_state %>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Turn:</span>
+                <span class="font-medium"><%= match.match_state.current_turn_number %> / <%= match.match_state.turn_limit %></span>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="mt-4">
+            <%= link_to "View Match", match_path(match), class: "block text-center rounded-lg py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium", data: { turbo_frame: "_top" } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-12 bg-gray-50 rounded-lg">
+      <p class="text-gray-600 mb-4">No active matches found</p>
+      <%= link_to "Create a Match", new_match_path, class: "inline-block rounded-lg py-3 px-5 bg-blue-600 text-white hover:bg-blue-700 font-medium", data: { turbo_frame: "_top" } %>
+    </div>
+  <% end %>
+</div>

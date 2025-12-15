@@ -27,14 +27,14 @@ module Artillery
             SlotRequirement.new(
               slot_key: :elevation,
               required: true,
-              allowed_types: ["PlayerMechanisms::ElevationDial"],
+              allowed_types: ["PlayerMechanisms::Edwardian::ElevationDial"],
               description: "Vertical aiming mechanism (dial or quadrant)"
             ),
 
             SlotRequirement.new(
               slot_key: :deflection,
               required: true,
-              allowed_types: ["PlayerMechanisms::DeflectionScrew"],
+              allowed_types: ["PlayerMechanisms::Edwardian::DeflectionScrew"],
               description: "Horizontal aiming mechanism (screw or wheel)"
             ),
 
@@ -42,14 +42,14 @@ module Artillery
             SlotRequirement.new(
               slot_key: :cartridge,
               required: true,
-              allowed_types: ["PlayerMechanisms::Cartridge85mm"],
+              allowed_types: ["PlayerMechanisms::Edwardian::Cartridge85mm"],
               description: "Ammunition type - must be 85mm caliber"
             ),
 
             SlotRequirement.new(
               slot_key: :barrel,
               required: true,
-              allowed_types: ["PlayerMechanisms::Barrel85mm"],
+              allowed_types: ["PlayerMechanisms::Edwardian::Barrel85mm"],
               description: "Gun barrel - must be 85mm caliber"
             ),
 
@@ -57,14 +57,14 @@ module Artillery
             SlotRequirement.new(
               slot_key: :breech,
               required: true,
-              allowed_types: ["PlayerMechanisms::BreechQf"],
+              allowed_types: ["PlayerMechanisms::Edwardian::BreechQf"],
               description: "Quick-firing breech mechanism"
             ),
 
             SlotRequirement.new(
               slot_key: :recoil_system,
               required: true,
-              allowed_types: ["PlayerMechanisms::RecoilSystem"],
+              allowed_types: ["PlayerMechanisms::Edwardian::RecoilSystem"],
               description: "Hydro-pneumatic or spring recoil system"
             ),
 
@@ -72,7 +72,7 @@ module Artillery
             SlotRequirement.new(
               slot_key: :sight,
               required: true,
-              allowed_types: ["PlayerMechanisms::OpticalSight"],
+              allowed_types: ["PlayerMechanisms::Edwardian::OpticalSight"],
               description: "Telescopic or iron sights"
             )
           ]
@@ -80,8 +80,7 @@ module Artillery
 
         def ui_characteristics
           {
-            era: "Edwardian",
-            country: "United Kingdom",
+            faction: "Edwardian",
             role: "Field Artillery",
             crew_size: 5,
             rate_of_fire: "20 rounds/min (theoretical)",
